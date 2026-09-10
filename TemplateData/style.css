@@ -77,27 +77,61 @@ html, body {
   display: block;
 }
 
-.mobile-left-controls,
+.mobile-dpad,
 .mobile-right-controls {
   position: absolute;
   bottom: max(18px, env(safe-area-inset-bottom));
-  display: flex;
-  gap: 12px;
   pointer-events: auto;
 }
 
-.mobile-left-controls { left: max(18px, env(safe-area-inset-left)); }
+.mobile-dpad {
+  left: max(18px, env(safe-area-inset-left));
+  width: clamp(162px, 42vw, 230px);
+  height: clamp(162px, 42vw, 230px);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  filter: drop-shadow(0 5px 9px rgba(0, 0, 0, .45));
+}
+
+.dpad-button,
+.dpad-center {
+  display: grid;
+  place-items: center;
+  color: #f3f3f3;
+  background: linear-gradient(145deg, #3d424a, #171a1f);
+  border: 1px solid #0b0d10;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.15), inset 0 -3px 5px rgba(0,0,0,.35);
+  font-size: clamp(23px, 7vw, 38px);
+  font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: none;
+}
+
+.dpad-up { grid-column: 2; grid-row: 1; border-radius: 10px 10px 3px 3px; }
+.dpad-left { grid-column: 1; grid-row: 2; border-radius: 10px 3px 3px 10px; }
+.dpad-center { grid-column: 2; grid-row: 2; }
+.dpad-right { grid-column: 3; grid-row: 2; border-radius: 3px 10px 10px 3px; }
+.dpad-down { grid-column: 2; grid-row: 3; border-radius: 3px 3px 10px 10px; }
+
+.dpad-button:active {
+  color: #fff;
+  background: linear-gradient(145deg, #626a76, #242931);
+  transform: scale(.96);
+}
+
 .mobile-right-controls { right: max(18px, env(safe-area-inset-right)); }
 
 .touch-button {
-  width: clamp(54px, 14vw, 82px);
-  height: clamp(54px, 14vw, 82px);
-  border: 2px solid rgba(255,255,255,.7);
+  width: clamp(78px, 19vw, 116px);
+  height: clamp(78px, 19vw, 116px);
+  border: 4px solid rgba(255,220,220,.9);
   border-radius: 50%;
-  color: white;
-  background: rgba(15, 25, 45, .68);
-  box-shadow: 0 3px 10px rgba(0,0,0,.35);
-  font-size: clamp(22px, 6vw, 34px);
+  color: #fff;
+  background: radial-gradient(circle at 35% 28%, #ff615e, #c4121a 62%, #780008);
+  box-shadow: inset 0 4px 7px rgba(255,255,255,.3), inset 0 -7px 10px rgba(75,0,0,.35), 0 5px 12px rgba(0,0,0,.45);
+  font-size: clamp(30px, 8vw, 46px);
   line-height: 1;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
@@ -105,12 +139,8 @@ html, body {
 }
 
 .touch-button:active {
-  background: rgba(20, 155, 220, .9);
+  background: radial-gradient(circle at 35% 28%, #ff817c, #dc1e26 62%, #92000a);
   transform: scale(.94);
-}
-
-.touch-space {
-  background: rgba(190, 65, 45, .72);
 }
 
 @media (min-width: 800px) and (pointer: fine) {

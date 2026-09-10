@@ -17,13 +17,15 @@
       </div>
       <div id="unity-warning"></div>
       <div id="mobile-controls" aria-label="Mobile game controls">
-        <div class="mobile-left-controls">
-          <button class="touch-button" data-key="KeyA" aria-label="Move left">◀</button>
-          <button class="touch-button" data-key="KeyD" aria-label="Move right">▶</button>
+        <div class="mobile-dpad" aria-label="Movement pad">
+          <button class="dpad-button dpad-up" data-key="KeyW" aria-label="Up or jump">▲</button>
+          <button class="dpad-button dpad-left" data-key="KeyA" aria-label="Move left">◀</button>
+          <span class="dpad-center" aria-hidden="true"></span>
+          <button class="dpad-button dpad-right" data-key="KeyD" aria-label="Move right">▶</button>
+          <button class="dpad-button dpad-down" data-key="KeyS" aria-label="Down">▼</button>
         </div>
         <div class="mobile-right-controls">
-          <button class="touch-button touch-action" data-key="KeyW" aria-label="Jump">▲</button>
-          <button class="touch-button touch-space" data-key="Space" aria-label="Start or action">START</button>
+          <button class="touch-button touch-action" data-key="Space" aria-label="Action">●</button>
         </div>
       </div>
     </div>
@@ -52,6 +54,7 @@
           KeyA: { key: "a", code: "KeyA", keyCode: 65 },
           KeyD: { key: "d", code: "KeyD", keyCode: 68 },
           KeyW: { key: "w", code: "KeyW", keyCode: 87 },
+          KeyS: { key: "s", code: "KeyS", keyCode: 83 },
           Space: { key: " ", code: "Space", keyCode: 32 }
         }[key] || { key, code: key, keyCode: 0 };
         target.dispatchEvent(new KeyboardEvent(type, {
