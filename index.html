@@ -18,12 +18,12 @@
       <div id="unity-warning"></div>
       <div id="mobile-controls" aria-label="Mobile game controls">
         <div class="mobile-left-controls">
-          <button class="touch-button" data-key="ArrowLeft" aria-label="Move left">◀</button>
-          <button class="touch-button" data-key="ArrowRight" aria-label="Move right">▶</button>
+          <button class="touch-button" data-key="KeyA" aria-label="Move left">◀</button>
+          <button class="touch-button" data-key="KeyD" aria-label="Move right">▶</button>
         </div>
         <div class="mobile-right-controls">
-          <button class="touch-button touch-action" data-key="ArrowUp" aria-label="Jump">▲</button>
-          <button class="touch-button touch-space" data-key="Space" aria-label="Action">●</button>
+          <button class="touch-button touch-action" data-key="KeyW" aria-label="Jump">▲</button>
+          <button class="touch-button touch-space" data-key="Space" aria-label="Start or action">START</button>
         </div>
       </div>
     </div>
@@ -48,15 +48,21 @@
 
       function sendKey(key, type) {
         const target = document.activeElement || canvas;
+        const keyInfo = {
+          KeyA: { key: "a", code: "KeyA", keyCode: 65 },
+          KeyD: { key: "d", code: "KeyD", keyCode: 68 },
+          KeyW: { key: "w", code: "KeyW", keyCode: 87 },
+          Space: { key: " ", code: "Space", keyCode: 32 }
+        }[key] || { key, code: key, keyCode: 0 };
         target.dispatchEvent(new KeyboardEvent(type, {
-          key: key,
-          code: key === "Space" ? "Space" : key,
-          keyCode: key === "Space" ? 32 : ({ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39}[key] || 0),
-          which: key === "Space" ? 32 : ({ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39}[key] || 0),
+          key: keyInfo.key,
+          code: keyInfo.code,
+          keyCode: keyInfo.keyCode,
+          which: keyInfo.keyCode,
           bubbles: true,
           cancelable: true
         }));
-        window.dispatchEvent(new KeyboardEvent(type, { key, code: key, bubbles: true }));
+        window.dispatchEvent(new KeyboardEvent(type, { key: keyInfo.key, code: keyInfo.code, keyCode: keyInfo.keyCode, which: keyInfo.keyCode, bubbles: true }));
       }
 
       document.querySelectorAll(".touch-button").forEach(button => {
