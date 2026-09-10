@@ -58,7 +58,7 @@
           loadingBar.style.display = "none";
         }).catch(message => unityShowBanner(message, "error"));
       };
-      script.onerror = () => unityShowBanner("Não foi possível carregar o jogo.", "error");
+      script.onerror = () => unityShowBanner("Unable to load the game.", "error");
       document.body.appendChild(script);
     </script>
   </body>
