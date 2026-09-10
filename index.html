@@ -16,28 +16,12 @@
         <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
       </div>
       <div id="unity-warning"></div>
-      <div id="mobile-controls" aria-label="Mobile game controls">
-        <div class="mobile-dpad" aria-label="Movement pad">
-          <button class="dpad-button dpad-up" data-key="KeyW" aria-label="Up or jump">▲</button>
-          <button class="dpad-button dpad-left" data-key="KeyA" aria-label="Move left">◀</button>
-          <span class="dpad-center" aria-hidden="true"></span>
-          <button class="dpad-button dpad-right" data-key="KeyD" aria-label="Move right">▶</button>
-          <button class="dpad-button dpad-down" data-key="KeyS" aria-label="Down">▼</button>
-        </div>
-        <div class="mobile-camera-pad" aria-label="Camera pad">
-          <span class="camera-stick" aria-hidden="true"></span>
-        </div>
-        <div class="mobile-right-controls">
-          <button class="touch-button touch-action" data-key="Space" aria-label="Action">●</button>
-        </div>
-      </div>
     </div>
     <script>
       const canvas = document.querySelector("#unity-canvas");
       const loadingBar = document.querySelector("#unity-loading-bar");
       const progressBarFull = document.querySelector("#unity-progress-bar-full");
       const warningBanner = document.querySelector("#unity-warning");
-      const mobileControls = document.querySelector("#mobile-controls");
       let unityInstance = null;
 
       function unityShowBanner(msg, type) {
@@ -50,64 +34,6 @@
         warningBanner.style.display = "block";
         if (type !== "error") setTimeout(() => div.remove(), 5000);
       }
-
-      function sendKey(key, type) {
-        const target = document.activeElement || canvas;
-        const keyInfo = {
-          KeyA: { key: "a", code: "KeyA", keyCode: 65 },
-          KeyD: { key: "d", code: "KeyD", keyCode: 68 },
-          KeyW: { key: "w", code: "KeyW", keyCode: 87 },
-          KeyS: { key: "s", code: "KeyS", keyCode: 83 },
-          Space: { key: " ", code: "Space", keyCode: 32 }
-        }[key] || { key, code: key, keyCode: 0 };
-        target.dispatchEvent(new KeyboardEvent(type, {
-          key: keyInfo.key,
-          code: keyInfo.code,
-          keyCode: keyInfo.keyCode,
-          which: keyInfo.keyCode,
-          bubbles: true,
-          cancelable: true
-        }));
-        window.dispatchEvent(new KeyboardEvent(type, { key: keyInfo.key, code: keyInfo.code, keyCode: keyInfo.keyCode, which: keyInfo.keyCode, bubbles: true }));
-      }
-
-      document.querySelectorAll(".touch-button").forEach(button => {
-        const key = button.dataset.key;
-        const press = event => {
-          event.preventDefault();
-          button.setPointerCapture?.(event.pointerId);
-          sendKey(key, "keydown");
-        };
-        const release = event => {
-          event.preventDefault();
-          sendKey(key, "keyup");
-        };
-        button.addEventListener("pointerdown", press, { passive: false });
-        button.addEventListener("pointerup", release, { passive: false });
-        button.addEventListener("pointercancel", release, { passive: false });
-        button.addEventListener("pointerleave", release, { passive: false });
-      });
-
-      const cameraPad = document.querySelector(".mobile-camera-pad");
-      let cameraPointer = null;
-      cameraPad.addEventListener("pointerdown", event => {
-        event.preventDefault();
-        cameraPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
-        cameraPad.setPointerCapture?.(event.pointerId);
-      }, { passive: false });
-      cameraPad.addEventListener("pointermove", event => {
-        if (!cameraPointer || event.pointerId !== cameraPointer.id) return;
-        event.preventDefault();
-        const dx = event.clientX - cameraPointer.x;
-        const dy = event.clientY - cameraPointer.y;
-        cameraPointer.x = event.clientX; cameraPointer.y = event.clientY;
-        canvas.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: event.clientX, clientY: event.clientY, movementX: dx, movementY: dy, buttons: 1 }));
-        const stick = cameraPad.querySelector(".camera-stick");
-        stick.style.transform = `translate(${Math.max(-28, Math.min(28, dx * 2))}px, ${Math.max(-28, Math.min(28, dy * 2))}px)`;
-      }, { passive: false });
-      ["pointerup", "pointercancel", "pointerleave"].forEach(type => cameraPad.addEventListener(type, event => {
-        if (cameraPointer?.id === event.pointerId) { cameraPointer = null; cameraPad.querySelector(".camera-stick").style.transform = ""; }
-      }, { passive: false }));
 
       const buildUrl = "Build";
       const config = {
@@ -130,12 +56,11 @@
         }).then(instance => {
           unityInstance = instance;
           loadingBar.style.display = "none";
-          if (window.matchMedia("(pointer: coarse)").matches) mobileControls.classList.add("visible");
           canvas.focus();
           // The original title screen waits for Space; continue automatically on all devices.
           setTimeout(() => {
-            sendKey("Space", "keydown");
-            setTimeout(() => sendKey("Space", "keyup"), 80);
+            canvas.dispatchEvent(new KeyboardEvent("keydown", { key: " ", code: "Space", keyCode: 32, which: 32, bubbles: true }));
+            setTimeout(() => canvas.dispatchEvent(new KeyboardEvent("keyup", { key: " ", code: "Space", keyCode: 32, which: 32, bubbles: true })), 80);
           }, 350);
         }).catch(message => unityShowBanner(message, "error"));
       };
