@@ -13,17 +13,27 @@
       <canvas id="unity-canvas" tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
+        <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
       </div>
       <div id="unity-warning"></div>
+      <div id="mobile-controls" aria-label="Mobile game controls">
+        <div class="mobile-left-controls">
+          <button class="touch-button" data-key="ArrowLeft" aria-label="Move left">◀</button>
+          <button class="touch-button" data-key="ArrowRight" aria-label="Move right">▶</button>
+        </div>
+        <div class="mobile-right-controls">
+          <button class="touch-button touch-action" data-key="ArrowUp" aria-label="Jump">▲</button>
+          <button class="touch-button touch-space" data-key="Space" aria-label="Action">●</button>
+        </div>
+      </div>
     </div>
     <script>
       const canvas = document.querySelector("#unity-canvas");
       const loadingBar = document.querySelector("#unity-loading-bar");
       const progressBarFull = document.querySelector("#unity-progress-bar-full");
       const warningBanner = document.querySelector("#unity-warning");
+      const mobileControls = document.querySelector("#mobile-controls");
+      let unityInstance = null;
 
       function unityShowBanner(msg, type) {
         const div = document.createElement("div");
@@ -35,6 +45,36 @@
         warningBanner.style.display = "block";
         if (type !== "error") setTimeout(() => div.remove(), 5000);
       }
+
+      function sendKey(key, type) {
+        const target = document.activeElement || canvas;
+        target.dispatchEvent(new KeyboardEvent(type, {
+          key: key,
+          code: key === "Space" ? "Space" : key,
+          keyCode: key === "Space" ? 32 : ({ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39}[key] || 0),
+          which: key === "Space" ? 32 : ({ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39}[key] || 0),
+          bubbles: true,
+          cancelable: true
+        }));
+        window.dispatchEvent(new KeyboardEvent(type, { key, code: key, bubbles: true }));
+      }
+
+      document.querySelectorAll(".touch-button").forEach(button => {
+        const key = button.dataset.key;
+        const press = event => {
+          event.preventDefault();
+          button.setPointerCapture?.(event.pointerId);
+          sendKey(key, "keydown");
+        };
+        const release = event => {
+          event.preventDefault();
+          sendKey(key, "keyup");
+        };
+        button.addEventListener("pointerdown", press, { passive: false });
+        button.addEventListener("pointerup", release, { passive: false });
+        button.addEventListener("pointercancel", release, { passive: false });
+        button.addEventListener("pointerleave", release, { passive: false });
+      });
 
       const buildUrl = "Build";
       const config = {
@@ -54,8 +94,16 @@
       script.onload = () => {
         createUnityInstance(canvas, config, progress => {
           progressBarFull.style.width = (100 * progress) + "%";
-        }).then(() => {
+        }).then(instance => {
+          unityInstance = instance;
           loadingBar.style.display = "none";
+          if (window.matchMedia("(pointer: coarse)").matches) mobileControls.classList.add("visible");
+          canvas.focus();
+          // The original title screen waits for Space; continue automatically on all devices.
+          setTimeout(() => {
+            sendKey("Space", "keydown");
+            setTimeout(() => sendKey("Space", "keyup"), 80);
+          }, 350);
         }).catch(message => unityShowBanner(message, "error"));
       };
       script.onerror = () => unityShowBanner("Unable to load the game.", "error");

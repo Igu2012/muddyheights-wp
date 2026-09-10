@@ -20,6 +20,7 @@ html, body {
   width: 100vw;
   height: 100vh;
   background: #1F1F20;
+  outline: none;
 }
 
 #unity-loading-bar {
@@ -60,5 +61,58 @@ html, body {
   background: white;
   padding: 10px;
   display: none;
-  z-index: 2;
+  z-index: 5;
+}
+
+#mobile-controls {
+  display: none;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  touch-action: none;
+}
+
+#mobile-controls.visible {
+  display: block;
+}
+
+.mobile-left-controls,
+.mobile-right-controls {
+  position: absolute;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.mobile-left-controls { left: max(18px, env(safe-area-inset-left)); }
+.mobile-right-controls { right: max(18px, env(safe-area-inset-right)); }
+
+.touch-button {
+  width: clamp(54px, 14vw, 82px);
+  height: clamp(54px, 14vw, 82px);
+  border: 2px solid rgba(255,255,255,.7);
+  border-radius: 50%;
+  color: white;
+  background: rgba(15, 25, 45, .68);
+  box-shadow: 0 3px 10px rgba(0,0,0,.35);
+  font-size: clamp(22px, 6vw, 34px);
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  touch-action: none;
+}
+
+.touch-button:active {
+  background: rgba(20, 155, 220, .9);
+  transform: scale(.94);
+}
+
+.touch-space {
+  background: rgba(190, 65, 45, .72);
+}
+
+@media (min-width: 800px) and (pointer: fine) {
+  #mobile-controls { display: none !important; }
 }
