@@ -24,6 +24,9 @@
           <button class="dpad-button dpad-right" data-key="KeyD" aria-label="Move right">▶</button>
           <button class="dpad-button dpad-down" data-key="KeyS" aria-label="Down">▼</button>
         </div>
+        <div class="mobile-camera-pad" aria-label="Camera pad">
+          <span class="camera-stick" aria-hidden="true"></span>
+        </div>
         <div class="mobile-right-controls">
           <button class="touch-button touch-action" data-key="Space" aria-label="Action">●</button>
         </div>
@@ -84,6 +87,27 @@
         button.addEventListener("pointercancel", release, { passive: false });
         button.addEventListener("pointerleave", release, { passive: false });
       });
+
+      const cameraPad = document.querySelector(".mobile-camera-pad");
+      let cameraPointer = null;
+      cameraPad.addEventListener("pointerdown", event => {
+        event.preventDefault();
+        cameraPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
+        cameraPad.setPointerCapture?.(event.pointerId);
+      }, { passive: false });
+      cameraPad.addEventListener("pointermove", event => {
+        if (!cameraPointer || event.pointerId !== cameraPointer.id) return;
+        event.preventDefault();
+        const dx = event.clientX - cameraPointer.x;
+        const dy = event.clientY - cameraPointer.y;
+        cameraPointer.x = event.clientX; cameraPointer.y = event.clientY;
+        canvas.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: event.clientX, clientY: event.clientY, movementX: dx, movementY: dy, buttons: 1 }));
+        const stick = cameraPad.querySelector(".camera-stick");
+        stick.style.transform = `translate(${Math.max(-28, Math.min(28, dx * 2))}px, ${Math.max(-28, Math.min(28, dy * 2))}px)`;
+      }, { passive: false });
+      ["pointerup", "pointercancel", "pointerleave"].forEach(type => cameraPad.addEventListener(type, event => {
+        if (cameraPointer?.id === event.pointerId) { cameraPointer = null; cameraPad.querySelector(".camera-stick").style.transform = ""; }
+      }, { passive: false }));
 
       const buildUrl = "Build";
       const config = {
